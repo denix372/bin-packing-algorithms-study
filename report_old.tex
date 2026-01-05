@@ -1,0 +1,321 @@
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}        
+\usepackage[utf8]{inputenc}     
+\usepackage{tcolorbox}          
+\tcbuselibrary{skins,breakable}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fontawesome5} 
+\usepackage[
+    margin=1.1in
+]{geometry}
+
+% Custom Color Definitions
+\definecolor{purple}{HTML}{800080}
+\definecolor{red}{HTML}{D00000}
+\definecolor{darkblue}{HTML}{000080}
+\definecolor{darkgreen}{HTML}{008000}
+\definecolor{yellow}{HTML}{FFCC00}
+\definecolor{orange}{HTML}{FFA500}
+\definecolor{pink}{HTML}{D00080}
+\definecolor{teal}{HTML}{008080}
+\definecolor{blue}{HTML}{0080D0}
+\definecolor{green}{HTML}{00B000}
+
+
+\tcbset{
+    NoteBox/.style={
+        breakable,
+        arc=3mm,
+        boxrule=0.8pt,
+        left skip=0pt, right skip=0pt,
+        boxsep=2mm, top=2mm, bottom=2mm,
+        enhanced, 
+    },
+    BoxRed/.style={NoteBox, colback=red!10, colframe=red, fonttitle=\bfseries\color{white}},
+    BoxDarkBlue/.style={NoteBox, colback=darkblue!10, colframe=darkblue, fonttitle=\bfseries\color{white}},
+    BoxDarkGreen/.style={NoteBox, colback=darkgreen!10, colframe=darkgreen, fonttitle=\bfseries\color{white}},
+    BoxYellow/.style={NoteBox, colback=yellow!10, colframe=yellow, fonttitle=\bfseries\color{black}},
+    BoxOrange/.style={NoteBox, colback=orange!10, colframe=orange, fonttitle=\bfseries\color{black}},
+    BoxPink/.style={NoteBox, colback=pink!10, colframe=pink, fonttitle=\bfseries\color{white}},
+    BoxTeal/.style={NoteBox, colback=teal!10, colframe=teal, fonttitle=\bfseries\color{white}},
+    BoxBlue/.style={NoteBox, colback=blue!10, colframe=blue, fonttitle=\bfseries\color{white}},
+    BoxGreen/.style={NoteBox, colback=green!10, colframe=green, fonttitle=\bfseries\color{white}},
+    BoxPurple/.style={NoteBox, colback=purple!10, colframe=purple, fonttitle=\bfseries\color{white}}
+}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{red},
+    commentstyle=\color{darkgreen},
+    showstringspaces=false,
+    breaklines=true,
+    frame=none,
+    backgroundcolor=\color{gray!5},  
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=red,
+    urlcolor=blue,
+}
+
+\begin{document}
+
+\title{Bin Packing Problem (Minimize number of used Bins)}
+\author{Last Updated: 02 Dec, 2024}
+\institute{}
+\maketitle
+
+\section{Introduction}
+Given $n$ items of different weights and bins each of capacity $c$, assign each item to a bin such that number of total used bins is minimized. It may be assumed that all items have weights smaller than bin capacity.
+
+
+
+\begin{tcolorbox}[BoxDarkBlue, title=\faIcon{list} Examples, fonttitle=\bfseries]
+\textbf{Input:} weight[] = [4, 8, 1, 4, 2, 1], c = 10 \\
+\textbf{Output:} 2 \\
+\textbf{Explanation:} We need minimum 2 bins to accommodate all items. First bin contains [4, 4, 2] and second bin [8, 1, 1].
+
+\vspace{2mm}
+\textbf{Input:} weight[] = [9, 8, 2, 2, 5, 4], c = 10 \\
+\textbf{Output:} 4 \\
+\textbf{Explanation:} We need minimum 4 bins to accommodate all items.
+
+\vspace{2mm}
+\textbf{Input:} weight[] = [2, 5, 4, 7, 1, 3, 8], c = 10 \\
+\textbf{Output:} 3
+\end{tcolorbox}
+
+This problem is a \textbf{NP-Hard} problem and finding an exact minimum number of bins takes exponential time. Following are approximate algorithms for this problem.
+
+\section{Lower Bound}
+We can always find a lower bound on minimum number of bins required as: 
+\[ \text{Min no. of bins} \geq \lceil (\text{Total Weight}) / (\text{Bin Capacity}) \rceil \]
+In the above examples, lower bound for first example is $\text{ceil}(4 + 8 + 1 + 4 + 2 + 1)/10 = 2$ and lower bound in second example is $\text{ceil}(9 + 8 + 2 + 2 + 5 + 4)/10 = 3$.
+
+\section{Online Algorithms}
+These algorithms are for Bin Packing problems where items arrive one at a time (in unknown order), each must be put in a bin, before considering the next item.
+
+\subsection{1. Next Fit}
+When processing next item, check if it fits in the same bin as the last item. Use a new bin only if it does not. Below is the implementation for this algorithm.
+
+\begin{tcolorbox}[BoxBlue, title=\faIcon{code} Next Fit Implementation, fonttitle=\bfseries]
+\begin{lstlisting}[language=Python]
+# Python3 implementation for above approach
+def nextfit(weight, c):
+    res = 0
+    rem = c
+    for _ in range(len(weight)):
+        if rem >= weight[_]:
+            rem = rem - weight[_]
+        else:
+            res += 1
+            rem = c - weight[_]
+    return res
+
+# Driver Code
+weight = [2, 5, 4, 7, 1, 3, 8]
+c = 10
+
+print("Number of bins required in Next Fit :", 
+                           nextfit(weight, c))
+
+\end{lstlisting}
+\end{tcolorbox}
+
+\textbf{Output:} Number of bins required in Next Fit : 4 \\
+Next Fit is a simple algorithm. It requires only $O(n)$ time and $O(1)$ extra space to process $n$ items. Next Fit is 2 approximate, i.e., the number of bins used by this algorithm is bounded by twice of optimal. Consider any two adjacent bins. The sum of items in these two bins must be $> c$; otherwise, NextFit would have put all the items of second bin into the first. The same holds for all other bins. Thus, at most half the space is wasted, and so Next Fit uses at most $2M$ bins if $M$ is optimal.
+
+\subsection{2. First Fit}
+When processing the next item, scan the previous bins in order and place the item in the first bin that fits. Start a new bin only if it does not fit in any of the existing bins.
+
+\begin{tcolorbox}[BoxPurple, title=\faIcon{code} First Fit Implementation, fonttitle=\bfseries]
+\begin{lstlisting}[language=Python]
+# Python program to find number of bins required using
+# First Fit algorithm.
+
+# Returns number of bins required using first fit
+# online algorithm
+def firstFit(weight, n, c):
+    # Initialize result (Count of bins)
+    res = 0
+    
+    # Create an array to store remaining space in bins
+    # there can be at most n bins
+    bin_rem = [0]*n
+    
+    # Place items one by one
+    for i in range(n):
+        # Find the first bin that can accommodate
+        # weight[i]
+        j = 0
+        while( j < res):
+            if (bin_rem[j] >= weight[i]):
+                bin_rem[j] = bin_rem[j] - weight[i]
+                break
+            j+=1
+            
+        # If no bin could accommodate weight[i]
+        if (j == res):
+            bin_rem[res] = c - weight[i]
+            res= res+1
+    return res
+    
+# Driver program
+weight = [2, 5, 4, 7, 1, 3, 8]
+c = 10
+n = len(weight)
+print("Number of bins required in First Fit : ", firstFit(weight, n, c))
+
+\end{lstlisting}
+\end{tcolorbox}
+
+\textbf{Output:} Number of bins required in First Fit : 4 \\
+The above implementation of First Fit requires $O(n^2)$ time, but First Fit can be implemented in $O(n \log n)$ time using Self-Balancing Binary Search Trees. If $M$ is the optimal number of bins, then First Fit never uses more than $1.7M$ bins. So First-Fit is better than Next Fit in terms of upper bound on number of bins. \\
+\textbf{Auxiliary Space:} $O(n)$
+
+\subsection{3. Best Fit}
+The idea is to places the next item in the \textit{tightest} spot. That is, put it in the bin so that the smallest empty space is left.
+
+\begin{tcolorbox}[BoxGreen, title=\faIcon{code} Best Fit Implementation, fonttitle=\bfseries]
+\begin{lstlisting}[language=Python]
+# Python3 program to find number 
+# of bins required using
+# First Fit algorithm.
+
+# Returns number of bins required 
+# using first fit
+# online algorithm
+def firstFit(weight, n, c):
+    # Initialize result (Count of bins)
+    res = 0;
+    # Create an array to store 
+    # remaining space in bins
+    # there can be at most n bins
+    bin_rem = [0]*n;
+
+    # Place items one by one
+    for i in range(n):
+        j = 0;
+        # Initialize minimum space left and index of best bin
+        min_val = c + 1;
+        bi = 0;
+
+        for j in range(res):
+            if (bin_rem[j] >= weight[i] and bin_rem[j] - weight[i] < min_val):
+                bi = j;
+                min_val = bin_rem[j] - weight[i];
+            
+        # If no bin could accommodate weight[i], create a new bin
+        if (min_val == c + 1):
+            bin_rem[res] = c - weight[i];
+            res += 1;
+        else: # Assign the item to best bin
+            bin_rem[bi] -= weight[i];
+    return res;
+
+# Driver code
+if __name__ == '__main__':
+    weight = [ 2, 5, 4, 7, 1, 3, 8 ];
+    c = 10;
+    n = len(weight);
+    print("Number of bins required in Best Fit : ", 
+                             firstFit(weight, n, c));
+    
+\end{lstlisting}
+\end{tcolorbox}
+
+\textbf{Output:} Number of bins required in Best Fit : 4 \\
+Best Fit can also be implemented in $O(n \log n)$ time using Self-Balancing Binary Search Trees. If $M$ is the optimal number of bins, then Best Fit never uses more than $1.7M$ bins. So Best Fit is same as First Fit and better than Next Fit in terms of upper bound on number of bins. \\
+\textbf{Auxiliary Space:} $O(n)$
+
+\subsection{4. Worst Fit}
+The idea is to places the next item in the least tight spot to even out the bins. That is, put it in the bin so that most empty space is left.
+
+\begin{tcolorbox}[BoxRed, title=\faIcon{code} Worst Fit Implementation, fonttitle=\bfseries]
+\begin{lstlisting}[language=Python]
+# Python program to find number of bins required using worst fit
+def worstFit( weight, n, c):
+    res = 0
+    bin_rem = [0 for i in range(n)]
+    
+    for i in range(n):
+        mx,wi = -1,0
+        for j in range(res):
+            if (bin_rem[j] >= weight[i] and bin_rem[j] - weight[i] > mx):
+                wi = j
+                mx = bin_rem[j] - weight[i]
+            
+        if (mx == -1):
+            bin_rem[res] = c - weight[i]
+            res += 1
+        else:
+            bin_rem[wi] -= weight[i]
+    return res
+
+# Driver program
+weight = [ 2, 5, 4, 7, 1, 3, 8 ]
+c = 10
+n = len(weight)
+print(f"Number of bins required in Worst Fit : {worstFit(weight, n, c)}")
+
+\end{lstlisting}
+\end{tcolorbox}
+
+\textbf{Output:} Number of bins required in Worst Fit : 4 \\
+Worst Fit can also be implemented in $O(n \log n)$ time using Self-Balancing Binary Search Trees. If $M$ is the optimal number of bins, then Best Fit never uses more than $2M-2$ bins. So Worst Fit is same as Next Fit in terms of upper bound on number of bins. \\
+\textbf{Auxiliary Space:} $O(n)$
+
+\section{Offline Algorithms}
+In the offline version, we have all items upfront. Unfortunately offline version is also NP Complete, but we have a better approximate algorithm for it. First Fit Decreasing uses at most $(4M + 1)/3$ bins if the optimal is $M$.
+
+\subsection{1. First Fit Decreasing}
+A trouble with online algorithms is that packing large items is difficult, especially if they occur late in the sequence. We can circumvent this by sorting the input sequence, and placing the large items first. With sorting, we get First Fit Decreasing and Best Fit Decreasing, as offline analogues of online First Fit and Best Fit.
+
+\begin{tcolorbox}[BoxOrange, title=\faIcon{code} First Fit Decreasing Implementation, fonttitle=\bfseries]
+\begin{lstlisting}[language=Python]
+# Returns number of bins required using first fit
+def firstFit(weight, n, c):
+    res = 0
+    bin_rem = [0]*n
+    for i in range(n):
+        j = 0
+        while( j < res):
+            if (bin_rem[j] >= weight[i]):
+                bin_rem[j] = bin_rem[j] - weight[i]
+                break
+            j+=1
+        if (j == res):
+            bin_rem[res] = c - weight[i]
+            res= res+1
+    return res
+    
+def firstFitDec(weight, n, c):
+    # First sort all weights in decreasing order
+    weight.sort(reverse = True)
+    # Now call first fit for sorted items
+    return firstFit(weight, n, c)
+
+# Driver program
+weight = [ 2, 5, 4, 7, 1, 3, 8 ]
+c = 10
+n = len(weight)
+print("Number of bins required in First Fit Decreasing : ", str(firstFitDec(weight, n, c)))
+
+\end{lstlisting}
+\end{tcolorbox}
+
+\textbf{Output:} Number of bins required in First Fit Decreasing : 3 \\
+First Fit decreasing produces the best result for the sample input because items are sorted first. First Fit Decreasing can also be implemented in $O(n \log n)$ time using Self-Balancing Binary Search Trees. \\
+\textbf{Auxiliary Space:} $O(1)$
+
+\end{document}
