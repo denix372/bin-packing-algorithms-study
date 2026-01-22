@@ -193,7 +193,7 @@ def generate_tests():
 
     return test_files
 
-# --- Funcție pentru un singur test ---
+# --- Functie pentru un singur test ---
 def run_single_test(f_path):
     algos = {
         "NF": next_fit,
@@ -265,7 +265,7 @@ def run_benchmark():
         opt_t = f"{times['OPT'][i]:.6f}" if times["OPT"][i] is not None else "N/A"
         print(f"| {n_values[i]} | {times['NF'][i]:.6f} | {times['FF'][i]:.6f} | {times['BF'][i]:.6f} | {times['WF'][i]:.6f} | {times['FFD'][i]:.6f} | {opt_t} |")
 
-        # --- Salvare tabele în CSV ---
+        # --- Salvare tabele in CSV ---
     with open("rezultate_bins.csv", "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Test","N", "NF", "FF", "BF", "WF", "FFD", "OPT"])
